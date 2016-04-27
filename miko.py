@@ -35,7 +35,6 @@ def check_library_used(repo, lib):
 
     found = False
     for req_file in REQ_FILES:
-        print found
         try:
             req_list = urllib2.urlopen(REPO_RAW_URL +
                                    "/{}/master/{}".format(repo.name, req_file)).read()
@@ -83,7 +82,7 @@ def main():
     if not args.user:
         gith = Github()
     else:
-        password = raw_input("Enter password: ")
+        password = getpass.getpass("Enter password: ")
         gith = Github(args.user, password)
     openstack_org = gith.get_organization(ORG_NAME)
 

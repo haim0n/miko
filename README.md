@@ -9,6 +9,14 @@ pip install pygithub
 
 ## Usage
 
-To look in any openstack project is using 'mario' library
+To check if any openstack project is using 'mario' library
 
+```
 ./miko --library mario
+```
+
+To use you personal user:
+
+```
+./miko --library luigi --user <your_github_username>
+```
