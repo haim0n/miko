@@ -5,6 +5,7 @@ Tells you which OpenStack projects use specific library
 
 ```
 pip install pygithub
+chmod +x miko.py
 ```
 
 ## Usage
@@ -12,11 +13,17 @@ pip install pygithub
 To check if any openstack project is using 'mario' library
 
 ```
-./miko --library mario
+./mikoi.py --library mario
+```
+
+To see results while it scanning use the `debug` flag
+
+```
+./mikoi.py --library mario --debug
 ```
 
 To use you personal user:
 
 ```
-./miko --library luigi --user <your_github_username>
+./miko.py --library luigi --user <your_github_username>
 ```
