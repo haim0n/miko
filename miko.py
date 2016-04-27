@@ -26,26 +26,30 @@ def create_parser():
 
     return parser
 
-def check_library_used(repo, library):
+def check_library_used(repo, lib):
     """Checks if the library is used by the project.
     
     :param repo: Github repo object
     :param library: the library name.
     """
 
-    logging.info("Looking in {}".format(repo.name))
     found = False
-
     for req_file in REQ_FILES:
+        print found
         try:
             req_list = urllib2.urlopen(REPO_RAW_URL +
                                    "/{}/master/{}".format(repo.name, req_file)).read()
         except:
             req_list = ""
 
-        if req_list and req_list.find(library):
+        if req_list.find(lib) != -1:
             found = True
                                 
+    if found:
+        logging.info("{} is using {} :)".format(repo.name, lib))
+    else:
+        logging.info("{} is not using {} :(".format(repo.name, lib))
+
     return found
             
 
