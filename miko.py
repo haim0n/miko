@@ -1,18 +1,19 @@
 #!/usr/bin/env python
 
 import argparse
+import eventlet
+from eventlet.green import urllib2
 import getpass
 from github import Github
 import logging
 import sys
-import urllib2
 
 
 ORG_NAME = 'openstack'
 REQ_FILES = ['requirements.txt',
              'test-requirements.txt',
              'other-requirements.txt']
-REPO_RAW_URL = "https://raw.githubusercontent.com/" + ORG_NAME
+REPO_RAW_URL_PREFIX = "https://raw.githubusercontent.com/" + ORG_NAME
 
 
 def create_parser():
@@ -30,55 +31,64 @@ def create_parser():
     return parser
 
 
-def check_library_used(repo, lib):
-    """Checks if the library is used by the project.
+def fetch_lib_list(url):
+    """Returns the content of the url.
 
-    :param repo: Github repo object
-    :param library: the library name.
+    :param url: the url which contains the libraries list
+    """
+    try:
+        return urllib2.urlopen(url).read()
+    except Exception:
+        logging.debug("No such page: {}".format(url))
+        return None
+
+
+def check_project(project):
+    """Return the libraries list and the name of the project.
+
+    :param project: Github repo object
     """
 
-    found = False
-    for req_file in REQ_FILES:
-        try:
-            req_list = urllib2.urlopen(
-                REPO_RAW_URL +
-                "/{}/master/{}".format(repo.name, req_file)).read()
-        except Exception:
-            req_list = ""
-
-        if req_list.find(lib) != -1:
-            found = True
-
-    if found:
-        logging.debug("{} is using {} :)".format(repo.name, lib))
-    else:
-        logging.debug("{} is not using {} :(".format(repo.name, lib))
-
-    return found
+    logging.info("Searching in {}".format(project.keys()[0]))
+    pool = eventlet.GreenPool()
+    for lib_list in pool.imap(fetch_lib_list, project.values()[0]):
+        return lib_list, project.keys()[0]
 
 
-def summary(repos_counter, lib, repos_use_library):
-    """Print summary."""
+def get_projects_using_library(repos, lib):
+    """Returns list of projects which using the specific library.
+
+    :param repos: list of Github repo objects
+    :param lib: the name of the chosen library
+    """
+    pool = eventlet.GreenPool()
+    projects_using_lib = []
+
+    for lib_list, project in pool.imap(check_project, repos):
+        if lib_list:
+            if lib_list.find(lib) != -1:
+                projects_using_lib.append(project)
+
+    return projects_using_lib
+
+
+def summary(repos_counter, lib, proj_using_lib):
+    """Output summary."""
 
     logging.info("=========== Summary ===========")
     logging.info("Scanned {} of repos".format(repos_counter))
-    if not repos_use_library:
-        logging.info("Couldn't find any repos that use this library")
-    else:
-        logging.info("Repos using '{}':".format(lib))
-        for repo in repos_use_library:
-            logging.info("Project: {}".format(repo))
+    for project in proj_using_lib:
+            logging.info("{} is using {}".format(project, lib))
 
 
 def main():
     """Miko main loop."""
 
-    repos_counter = 0
-    repos_use_library = []
+    repos = []
 
     parser = create_parser()
     args = parser.parse_args()
-    
+
     if not args.debug:
         logging.basicConfig(level=logging.INFO)
     else:
@@ -94,14 +104,16 @@ def main():
         gith = Github(args.user, password)
     openstack_org = gith.get_organization(ORG_NAME)
 
-    logging.info("Start scanning. This might take a while!")
     for repo in openstack_org.get_repos():
-        repos_counter += 1
-        if check_library_used(repo, args.library):
-            repos_use_library.append(repo.name)
+        repos.append({repo.name:
+                      [REPO_RAW_URL_PREFIX +
+                       "/{}/master/{}".format(
+                           repo.name, req_file) for req_file in REQ_FILES]})
 
-    summary(repos_counter, args.library, repos_use_library)
+    logging.info("Start scanning. This might take a while!")
+    proj_using_lib = get_projects_using_library(repos, args.library)
 
+    summary(len(repos), args.library, proj_using_lib)
 
 if __name__ == '__main__':
 
