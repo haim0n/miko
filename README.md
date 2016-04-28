@@ -1,5 +1,6 @@
 # Miko
-Tells you which OpenStack projects use specific library
+
+By providing a library name, `Miko` would output which OpenStack projects are using it.
 
 ### Installation
 
@@ -13,17 +14,17 @@ chmod +x miko.py
 To check if any openstack project is using 'mario' library
 
 ```
-./mikoi.py --library mario
+python miko/cmd.py --library mario
 ```
 
-To see results while it scanning use the `debug` flag
+To see additional information while running `miko` use the `--debug` flag
 
 ```
-./mikoi.py --library mario --debug
+python miko/cmd.py --library mario --debug
 ```
 
-To use you personal user:
+To use your personal user:
 
 ```
-./miko.py --library luigi --user <your_github_username>
+python miko/cmd.py --library beautifulsoup4 --user <my_github_username>
 ```
