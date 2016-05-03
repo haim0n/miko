@@ -64,28 +64,23 @@ def check_lib_list(url, lib, project):
         logging.debug("No such url: {}".format(url))
 
 
-def find_library(project, lib, pool):
+def find_library(project_tuple):
     """Calls the method for checking the lib in requirements
 
        file, for each specified requirement file in the project.
 
-    :param project: the Project object
-    :param lib: the name of the library
+    :param project_tuple: tuple(Project, lib)
     """
-
+    project, lib = project_tuple
     logging.info("Scanning project: {}".format(project.name))
     for url in project.requirement_urls:
-        pool.spawn_n(check_lib_list, url, lib, project)
+        check_lib_list(url, lib, project)
+
+    return project
 
 
 def main():
     """Miko main loop."""
-
-    pool = eventlet.GreenPool()
-    find_pool = eventlet.GreenPool()
-
-    projects = []
-    projects_counter = 0
 
     parser = create_parser()
     args = parser.parse_args()
@@ -99,31 +94,34 @@ def main():
         gith = Github()
     else:
         password = getpass.getpass("Enter password: ")
-        gith = Github(args.user, password)
+        gith = Github(args.user, password, per_page=1000)
 
     openstack_org = gith.get_organization(ORG_NAME)
     logging.info("Pulling information on all OpenStack projects")
     repos = openstack_org.get_repos()
 
+    projects = []
+    projects_counter = 0
+    pool = eventlet.GreenPool(64)
     # Create list of project objects
-    for project in repos:
+    for repo in repos:
         projects_counter += 1
-        # TODO(abregman): change this to logging by changing logging.Formatter
         sys.stdout.write("Pulled the data of {} projects\r"
                          .format(projects_counter))
         sys.stdout.flush()
-        projects.append(Project(project.name, [REPO_RAW_URL_PREFIX +
-                                               "/{}/master/{}".format(
-                                                   project.name, req_file) for
-                                               req_file in REQ_FILES]))
+        project_urls = [
+            '{}/{}/master/{}'.format(REPO_RAW_URL_PREFIX, repo.name, req_file)
+            for req_file in REQ_FILES]
+        project = Project(repo.name, project_urls)
+        projects.append(project)
 
-    for project in projects:
-        pool.spawn_n(find_library, project, args.library, find_pool)
-        pool.waitall()
+    proj_tuples = [(proj, args.library) for proj in projects]
+    for project in pool.imap(find_library, proj_tuples):
+        print("got project: {}".format(project.name))
 
     miko_run_summary = Summary(projects_counter, projects)
     miko_run_summary.print_summary()
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     sys.exit(main())

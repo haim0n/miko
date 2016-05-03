@@ -14,17 +14,17 @@ chmod +x miko.py
 To check if any openstack project is using 'mario' library
 
 ```
-python miko/cmd.py --library mario
+python miko/main.py --library mario
 ```
 
 To see additional information while running `miko` use the `--debug` flag
 
 ```
-python miko/cmd.py --library mario --debug
+python miko/main.py --library mario --debug
 ```
 
 To use your personal user:
 
 ```
-python miko/cmd.py --library beautifulsoup4 --user <my_github_username>
+python miko/main.py --library beautifulsoup4 --user <my_github_username>
 ```
