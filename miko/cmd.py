@@ -64,7 +64,7 @@ def check_lib_list(url, lib, project):
         logging.debug("No such url: {}".format(url))
 
 
-def find_library(project, lib):
+def find_library(project, lib, pool):
     """Calls the method for checking the lib in requirements
 
        file, for each specified requirement file in the project.
@@ -73,7 +73,6 @@ def find_library(project, lib):
     :param lib: the name of the library
     """
 
-    pool = eventlet.GreenPool()
     logging.info("Scanning project: {}".format(project.name))
     for url in project.requirement_urls:
         pool.spawn_n(check_lib_list, url, lib, project)
@@ -83,6 +82,7 @@ def main():
     """Miko main loop."""
 
     pool = eventlet.GreenPool()
+    find_pool = eventlet.GreenPool()
 
     projects = []
     projects_counter = 0
@@ -118,7 +118,7 @@ def main():
                                                req_file in REQ_FILES]))
 
     for project in projects:
-        pool.spawn_n(find_library, project, args.library)
+        pool.spawn_n(find_library, project, args.library, find_pool)
         pool.waitall()
 
     miko_run_summary = Summary(projects_counter, projects)
