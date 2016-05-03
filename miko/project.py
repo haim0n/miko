@@ -4,8 +4,7 @@ class Project(object):
     about the OpenStack project.
     """
 
-    def __init__(self, name, requirements_urls, found_library=False):
-
+    def __init__(self, name, requirements_urls):
         self.name = name
         self.requirement_urls = requirements_urls
-        self.found_library = found_library
+        self.lib_list = []
