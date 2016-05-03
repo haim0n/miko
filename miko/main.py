@@ -46,37 +46,26 @@ def set_logging(debug_mode):
         logging.basicConfig(level=logging.DEBUG)
 
 
-def check_lib_list(url, lib, project):
-    """Checks if library is mentioned in requirements file
+def get_project_lib_list(project):
+    """returns all libraries in use by project
 
-       and sets 'found_library' attribute accordingly.
-
-    :param url: the url of the requirements file
-    :param lib: the name of the library
     :param project: the Project object
     """
     try:
-        lib_list = urllib2.urlopen(url).read()
-        if lib_list.find(lib) != -1:
-            logging.debug("There is a match in {}".format(url))
-            project.found_library = True
-    except Exception:
-        logging.debug("No such url: {}".format(url))
-
-
-def find_library(project_tuple):
-    """Calls the method for checking the lib in requirements
-
-       file, for each specified requirement file in the project.
-
-    :param project_tuple: tuple(Project, lib)
-    """
-    project, lib = project_tuple
-    logging.info("Scanning project: {}".format(project.name))
-    for url in project.requirement_urls:
-        check_lib_list(url, lib, project)
+        for url in project.requirement_urls:
+            project.lib_list.append(urllib2.urlopen(url).read())
+    except urllib2.URLError as e:
+        logging.debug("error on request: {}, {}".format(e, url))
 
     return project
+
+
+def is_lib_in_requirements(lib, req_list):
+    for req in req_list:
+        if lib in req:
+            return True
+
+    return False
 
 
 def main():
@@ -115,11 +104,13 @@ def main():
         project = Project(repo.name, project_urls)
         projects.append(project)
 
-    proj_tuples = [(proj, args.library) for proj in projects]
-    for project in pool.imap(find_library, proj_tuples):
+    projects_using_lib = []
+    for project in pool.imap(get_project_lib_list, projects):
         print("got project: {}".format(project.name))
+        if is_lib_in_requirements(args.library, project.lib_list):
+            projects_using_lib.append(project)
 
-    miko_run_summary = Summary(projects_counter, projects)
+    miko_run_summary = Summary(projects, projects_using_lib)
     miko_run_summary.print_summary()
 
 
