@@ -29,7 +29,7 @@ setup(
     long_description=readme + '\n\n' + history,
     author="Arie Bregman, Haim Daniel",
     author_email='abregman@redhat.com',
-    url='https://github.com/abregman/miko',
+    url='https://github.com/bregman-arie/miko',
     packages=[
         'miko',
     ],
