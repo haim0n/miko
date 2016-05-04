@@ -11,7 +11,6 @@ import sys
 from project import Project
 from summary import Summary
 
-
 ORG_NAME = 'openstack'
 REQ_FILES = ['requirements.txt',
              'test-requirements.txt',
