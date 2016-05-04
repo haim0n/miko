@@ -49,6 +49,7 @@ Usage
 
 TODO
 ----
+* Tests probably are a good thing to have.
 * Addition of an offline mode (potentialy to sqlite db).
         * add relational db capabilities to user (top, references etc).
 * Parsing of each project's structure, to avoid 404 errors on invalid requirements.
