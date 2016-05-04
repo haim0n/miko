@@ -5,7 +5,8 @@ Credits
 Development Lead
 ----------------
 
-* Arie Bregman, Haim Daniel <abregman@redhat.com>
+* Arie Bregman <abregman@redhat.com>
+* Haim Daniel <haim.daniel@gmail.com>
 
 Contributors
 ------------
