@@ -26,6 +26,11 @@ Installation
 * Change working dir into the cloned project's root: ``cd miko``
 * Install the package: ``sudo python setup.py install``
 
+Uninstall
+---------
+``sudo pip uninstall miko``
+
+
 Usage
 -----
 
