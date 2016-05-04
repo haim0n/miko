@@ -5,8 +5,8 @@ Miko
 .. image:: https://img.shields.io/pypi/v/miko.svg
         :target: https://pypi.python.org/pypi/miko
 
-.. image:: https://img.shields.io/travis/haim0n/miko.svg
-        :target: https://travis-ci.org/haim0n/miko
+.. image:: https://img.shields.io/travis/abregman/miko.svg
+        :target: https://travis-ci.org/abregman/miko
 
 .. image:: https://readthedocs.org/projects/miko/badge/?version=latest
         :target: https://readthedocs.org/projects/miko/?badge=latest
