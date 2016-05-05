@@ -19,7 +19,7 @@ requirements = [
 ]
 
 test_requirements = [
-    testtools,
+    'testtools',
 ]
 
 setup(
