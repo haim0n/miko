@@ -16,13 +16,13 @@ env:
 install: pip install -U tox
 
 # command to run tests, e.g. python setup.py test
-script: tox -e $TOX_ENV
+script: tox -e $TOXENV
 
 after_success:
     # Report coverage results to codecov.io
     # and export tox environment variables
     - pip install codecov
-    - codecov -e TOX_ENV TRAVIS_OS_NAME
+    - codecov -e TOXENV TRAVIS_OS_NAME
 
 
 # After you create the Github repo and add it to Travis, run the
