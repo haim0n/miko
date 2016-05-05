@@ -10,11 +10,8 @@ Tests for `miko` module.
 
 import unittest
 
-from miko import __main__
-
 
 class TestMiko(unittest.TestCase):
-
     def setUp(self):
         pass
 
@@ -27,4 +24,5 @@ class TestMiko(unittest.TestCase):
 
 if __name__ == '__main__':
     import sys
+
     sys.exit(unittest.main())
